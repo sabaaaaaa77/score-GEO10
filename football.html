@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ფეხბურთი - LIVE | SCORE.GE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="icon" type="Gemini_Generated_Image_z1r0v1z1r0v1z1r0.png" href="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png">
+    <style>
+        :root {
+            --live-red: #ff4d4d;
+            --main-green: #00ff85;
+            --bg-dark: #0a0a0a;
+            --card-bg: #111111;
+        }
+
+        body { background-color: var(--bg-dark); color: white; font-family: 'Poppins', sans-serif; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .page-header {
+            padding: 40px 0;
+            text-align: center;
+            background: linear-gradient(to bottom, #111, transparent);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 30px 0 20px;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--main-green);
+            padding-left: 15px;
+        }
+
+        /* მატჩების ბადე */
+        .football-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            min-height: 50px;
+        }
+
+        .fb-match-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #222;
+            transition: 0.3s;
+        }
+
+        .fb-match-card.is-live {
+            border-left: 4px solid var(--live-red);
+            background: linear-gradient(90deg, #1a1111 0%, #111 100%);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .live-tag { color: var(--live-red); font-weight: bold; animation: blink 1.2s infinite; }
+
+        .team-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .team-info { display: flex; align-items: center; gap: 12px; }
+        .team-info img { width: 25px; height: 25px; object-fit: contain; }
+
+        .score-box { font-size: 1.3rem; font-weight: 700; color: var(--main-green); }
+
+        /* ცხრილის სექცია */
+        .standings-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 40px 0;
+            overflow-x: auto;
+        }
+
+        .league-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .tab-btn.active { background: var(--main-green); color: black; font-weight: bold; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #666; padding: 12px; border-bottom: 1px solid #222; }
+        td { padding: 15px 12px; border-bottom: 1px solid #1a1a1a; }
+        
+        .pos { width: 40px; color: #888; font-weight: bold; }
+        .team-cell { display: flex; align-items: center; gap: 10px; }
+        .pts { color: var(--main-green); font-weight: bold; }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } } 
+
+        .match-start-time {
+    color: #00ff85; /* მწვანე ფერი, რომ ეგრევე მოხვდეს თვალს */
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: rgba(0, 255, 133, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+} 
+.table-wrapper {
+    max-height: 400px; /* აქედან წყდება ცხრილი თავიდან */
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+    position: relative;
+}
+
+.table-wrapper.expanded {
+    max-height: 2000px; /* ან "none" */
+}
+
+/* გუნდის სახელის გასწორება */
+.team-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.team-cell img {
+    object-fit: contain;
+}
+
+/* აქტიური ლიგის ღილაკი */
+.tab-btn.active {
+    background-color: #00ff85 !important;
+    color: #000 !important;
+    border-color: #00ff85 !important;
+} 
+.scorers-container {
+    background: #111;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 20px;
+    border: 1px solid #333;
+}
+
+.scorers-header h3 {
+    color: #00ff85;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.scorer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #222;
+}
+
+.scorer-item:last-child { border-bottom: none; }
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rank {
+    color: #555;
+    font-weight: bold;
+    min-width: 20px;
+}
+
+.player-name {
+    display: block;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.player-team {
+    display: block;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.goals-count {
+    color: #00ff85;
+    font-size: 1rem;
+} 
+/* --- მატჩების გრიდის გასწორება --- */
+.matches-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* ავტომატურად სვამს ქარდებს */
+    padding: 10px;
+}
+
+/* --- მობილური მოწყობილობებისთვის (768px-ზე ნაკლები) --- */
+@media (max-width: 768px) {
+    .matches-grid {
+        grid-template-columns: 1fr; /* ტელეფონზე მხოლოდ 1 სვეტი */
+    }
+
+    .standings-container {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    /* ლიგის ღილაკები რომ არ დაიკუმშოს */
+    .league-tabs {
+        display: flex;
+        overflow-x: auto; /* გვერდზე გადასქროლვის საშუალება */
+        white-space: nowrap;
+        gap: 5px;
+        padding-bottom: 10px;
+    }
+
+    .tab-btn {
+        flex: 0 0 auto;
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+
+    /* ცხრილის პატარა ეკრანზე მორგება */
+    #standings-table th:nth-child(4), 
+    #standings-table td:nth-child(4), /* მ (მოგება) */
+    #standings-table th:nth-child(5), 
+    #standings-table td:nth-child(5), /* ფ (ფრე) */
+    #standings-table th:nth-child(6), 
+    #standings-table td:nth-child(6)  /* წ (წაგება) */ {
+        display: none; /* ტელეფონზე დავმალოთ ნაკლებად მნიშვნელოვანი სვეტები */
+    }
+
+    .team-name-text {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* --- ტაბლეტებისთვის (769px-დან 1024px-მდე) --- */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .matches-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 ქარდი გვერდიგვერდ */
+    }
+}
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0;">
+        
+        <!-- ლოგო -->
+        <a href="index.html" class="logo-area">
+            <img src="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png" alt="Logo" style="height: 45px;">
+        </a>
+
+        <!-- ნავიგაცია და სოციალურები -->
+        <div style="display: flex; align-items: center; gap: 30px;">
+            <nav class="main-nav">
+                <ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0; padding: 0;">
+                    <li><a href="index.html" style="text-decoration: none; color: white; transition: 0.3s;">მთავარი</a></li>
+                    <li><a href="football.html" style="text-decoration: none; color: var(--main-green); font-weight: bold;">ფეხბურთი</a></li>
+                </ul>
+            </nav>
+
+            <!-- სოციალური ქსელების ბლოკი -->
+            <div class="header-socials" style="display: flex; gap: 15px; border-left: 1px solid #444; padding-left: 20px;">
+                <a href="https://www.facebook.com/profile.php?id=61588798955027&mibextid=wwXIfr&rdid=9exiR6q19YZozW5e&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1E11q6MkHE%2F%3Fmibextid%3DwwXIfr#" target="_blank" style="color: white; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='#1877F2'" onmouseout="this.style.color='white'">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/scor_e49/?igsh=MWM2OTZxdDhhanZyeg%3D%3D&utm_source=qr&fbclid=IwY2xjawRitHlleHRuA2FlbQIxMABicmlkETFOUmJZZlRTYW90VndCZTZRc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHuwTeKwXx3mo2MIHt77rM2sA0Z91khYARL_m3JK1sw0jWtjaIqT6xHLFGam__aem_dkAv4kSbsC4yYAb3vGKxRQ" target="_blank" style="color: white; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='#E4405F'" onmouseout="this.style.color='white'">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+
+    <div class="page-header">
+        <div class="container">
+            <h1>⚽ ფეხბურთის ცენტრი</h1>
+            <p style="color: #888;">ლაივ ანგარიშები და სატურნირო ცხრილები</p>
+        </div>
+    </div>
+
+    <main class="container">
+        
+        <h2 class="section-title">🔴 LIVE მატჩები</h2>
+        <div id="fb-live-list" class="football-grid">
+            <p style="color: #555;">იტვირთება...</p>
+        </div> 
+        <div id="fb-live-list" class="matches-grid"></div>
+
+<div id="live-btn-wrapper" style="text-align: center; margin-top: 20px;"></div>
+
+        <h2 class="section-title">📅 დღევანდელი განრიგი</h2>
+        <div id="fb-schedule-list" class="football-grid">
+            <p style="color: #555;">იტვირთება...</p>
+        </div>
+<!-- <div class="standings-container">
+    <h2>სატურნირო ცხრილი</h2>
+    
+    <div class="league-tabs">
+        <button onclick="changeLeague('PL')" class="tab-btn active">PL</button>
+        <button onclick="changeLeague('PD')" class="tab-btn">La Liga</button>
+        <button onclick="changeLeague('SA')" class="tab-btn">Serie A</button>
+        <button onclick="changeLeague('BL1')" class="tab-btn">Bundesliga</button>
+        <button onclick="changeLeague('FL1')" class="tab-btn">Ligue 1</button>
+    </div>
+
+    <div class="table-wrapper" id="tableWrapper">
+        <table id="standings-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>გუნდი</th>
+                    <th>თ</th>
+                    <th>მ</th>
+                    <th>ფ</th>
+                    <th>წ</th>
+                    <th>ქ</th>
+                </tr>
+            </thead>
+            <tbody id="standings-body"></tbody>
+        </table>
+    </div>
+    <button id="seeMoreBtn" class="see-more-btn">SEE MORE</button>
+</div>  -->
+        
+    </main>  
+    <div id="results-container" class="matches-grid"></div>
+
+<div id="results-btn-wrapper" style="text-align:center; margin-top:20px;">
+    <button id="results-see-more-btn" class="see-more-style" style="display:none;">შედეგების ნახვა</button>
+</div>
+    <div class="results-section">
+    <h2>დასრულებული მატჩები</h2>
+    <div id="results-container" class="matches-grid"></div>
+</div>
+<div id="fb-finished-list"></div>
+<div id="finished-btn-wrapper"></div>
+<div class="scorers-container">
+    <div class="scorers-header">
+        <h3>🔝 ტოპ ბომბარდირები</h3>
+    </div>
+    <div id="scorers-list" class="scorers-list">
+        </div>
+</div> 
+
+<div id="season-info"></div>
+     <footer class="modern-footer">
+    <div class="footer-wave">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V46.35C50.71,61.85,108.6,67.8,162,56.44Z" class="shape-fill"></path>
+        </svg>
+    </div>
+    <div class="footer-content">
+        <div class="footer-info">
+            <img src="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png" class="footer-logo">
+            <p>საუკეთესო სპორტული პლატფორმა საქართველოში. თვალი ადევნე ყველა მატჩს რეალურ დროში.</p>
+        </div>
+        <div class="footer-links">
+            <h4>ლიგები</h4>
+            <a href="#">Premier League</a>
+            <a href="#">La Liga</a>
+            <a href="#">Serie A</a>
+        </div>
+       <div class="social-icons">
+       
+        <a href="https://www.facebook.com/profile.php?id=61588798955027&mibextid=wwXIfr&rdid=9exiR6q19YZozW5e&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1E11q6MkHE%2F%3Fmibextid%3DwwXIfr#" target="_blank" class="social-btn fb">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://www.instagram.com/scor_e49/?igsh=MWM2OTZxdDhhanZyeg%3D%3D&utm_source=qr&fbclid=IwY2xjawRitHlleHRuA2FlbQIxMABicmlkETFOUmJZZlRTYW90VndCZTZRc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHuwTeKwXx3mo2MIHt77rM2sA0Z91khYARL_m3JK1sw0jWtjaIqT6xHLFGam__aem_dkAv4kSbsC4yYAb3vGKxRQ" target="_blank" class="social-btn ig">
+            <i class="fab fa-instagram"></i>
+        </a>
+      
+    </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 SCORE.GE. ყველა უფლება დაცულია.</p>
+    </div>
+</footer>
+
+<div id="scorers-list"></div>
+<script src="footbal.js"></script> 
+<script src="app.js"></script>
+</body>
+</html>

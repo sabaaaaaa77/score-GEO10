@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>გუნდის სრული ინფორმაცია</title>  
+  <link rel="icon" type="Gemini_Generated_Image_z1r0v1z1r0v1z1r0.png" href="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            background: #050505; 
+            color: white; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            padding: 0; 
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .back-link { 
+            color: #00ff85; 
+            text-decoration: none; 
+            font-weight: bold; 
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 0;
+            transition: 0.3s;
+        }
+        .back-link:hover { transform: translateX(-5px); color: white; }
+
+        /* გუნდის მთავარი ბანერი */
+        .team-banner {
+            background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);
+            border-radius: 24px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            border: 1px solid #222;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #team-logo {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(0,255,133,0.3));
+        }
+        .team-details-text h1 {
+            margin: 0;
+            font-size: 3rem;
+            color: #00ff85;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .meta-item {
+            color: #bbb;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .meta-item strong { color: #00ff85; }
+
+        /* შემადგენლობის სექცია */
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 10px;
+            border-left: 4px solid #00ff85;
+        }
+
+        .squad-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; 
+        }
+
+        .player-card { 
+            background: #111; 
+            padding: 20px; 
+            border-radius: 16px; 
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #222;
+        }
+        .player-card:hover { 
+            transform: translateY(-8px);
+            background: #161616;
+            border-color: #00ff8555;
+            box-shadow: 0 10px 20px rgba(0,255,133,0.1);
+        }
+
+        .shirt-number {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            opacity: 0.1;
+            font-style: italic;
+        }
+
+        .player-main { display: flex; align-items: center; gap: 15px; }
+        
+        .p-icon { 
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .p-name { margin: 0; font-size: 1.15rem; color: #fff; font-weight: 600; }
+        .p-pos { font-weight: 800; font-size: 0.7rem; margin: 4px 0; letter-spacing: 1.5px; }
+        .p-extra { font-size: 0.85rem; color: #777; display: flex; gap: 10px; margin-top: 6px; }
+
+        .coach-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(90deg, #1a1a1a, #111);
+            border-left: 6px solid #fff !important;
+        }
+
+        @media (max-width: 768px) {
+            .team-banner { flex-direction: column; text-align: center; padding: 30px; }
+            .team-details-text h1 { font-size: 2rem; }
+            .meta-grid { justify-items: center; }
+        }
+    </style>
+</head>
+<body>
+<header class="main-header">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0;">
+        
+        <!-- ლოგო -->
+        <a href="index.html" class="logo-area">
+            <img src="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png" alt="Logo" style="height: 45px;">
+        </a>
+
+        <!-- ნავიგაცია და სოციალურები -->
+        <div style="display: flex; align-items: center; gap: 30px;">
+            <nav class="main-nav">
+                <ul class="nav-links" style="display: flex; list-style: none; gap: 25px; margin: 0; padding: 0;">
+                    <li><a href="index.html" style="text-decoration: none; color: white; transition: 0.3s;">მთავარი</a></li>
+                    <li><a href="football.html" style="text-decoration: none; color: var(--main-green); font-weight: bold;">ფეხბურთი</a></li>
+                </ul>
+            </nav>
+
+            <!-- სოციალური ქსელების ბლოკი -->
+            <div class="header-socials" style="display: flex; gap: 15px; border-left: 1px solid #444; padding-left: 20px;">
+                <a href="https://www.facebook.com/profile.php?id=61588798955027&mibextid=wwXIfr&rdid=9exiR6q19YZozW5e&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1E11q6MkHE%2F%3Fmibextid%3DwwXIfr#" target="_blank" style="color: white; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='#1877F2'" onmouseout="this.style.color='white'">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/scor_e49/?igsh=MWM2OTZxdDhhanZyeg%3D%3D&utm_source=qr&fbclid=IwY2xjawRitHlleHRuA2FlbQIxMABicmlkETFOUmJZZlRTYW90VndCZTZRc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHuwTeKwXx3mo2MIHt77rM2sA0Z91khYARL_m3JK1sw0jWtjaIqT6xHLFGam__aem_dkAv4kSbsC4yYAb3vGKxRQ" target="_blank" style="color: white; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='#E4405F'" onmouseout="this.style.color='white'">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← უკან დაბრუნება</a>
+        
+        <div id="header-section" class="team-banner" style="display: none;">
+            <img id="team-logo" src="" alt="">
+            <div class="team-details-text">
+                <h1 id="team-title">იტვირთება...</h1>
+                <div class="meta-grid">
+                    <div class="meta-item" id="meta-venue"></div>
+                    <div class="meta-item" id="meta-founded"></div>
+                    <div class="meta-item" id="meta-colors"></div>
+                    <div class="meta-item" id="meta-web"></div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🏃 შემადგენლობა</h2>
+        
+        <div id="squad-list" class="squad-grid">
+            </div>
+    </div>
+   <footer class="modern-footer">
+
+        <div class="footer-content">
+
+            <div class="footer-info">
+
+                <img src="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png"
+                    class="footer-logo">
+
+                <p>
+                    საუკეთესო სპორტული პლატფორმა საქართველოში.
+                    თვალი ადევნე ყველა მატჩს რეალურ დროში.
+                </p>
+
+            </div>
+
+            <div class="footer-links">
+
+                <h4>ლიგები</h4>
+
+                <a href="#">Premier League</a>
+                <a href="#">La Liga</a>
+                <a href="#">Serie A</a>
+
+            </div>
+
+          <div class="footer-social">
+    <h4>მოგვყევით</h4>
+     <div class="social-icons">
+       
+        <a href="https://www.facebook.com/profile.php?id=61588798955027&mibextid=wwXIfr&rdid=9exiR6q19YZozW5e&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1E11q6MkHE%2F%3Fmibextid%3DwwXIfr#" target="_blank" class="social-btn fb">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://www.instagram.com/scor_e49/?igsh=MWM2OTZxdDhhanZyeg%3D%3D&utm_source=qr&fbclid=IwY2xjawRitHlleHRuA2FlbQIxMABicmlkETFOUmJZZlRTYW90VndCZTZRc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHuwTeKwXx3mo2MIHt77rM2sA0Z91khYARL_m3JK1sw0jWtjaIqT6xHLFGam__aem_dkAv4kSbsC4yYAb3vGKxRQ" target="_blank" class="social-btn ig">
+            <i class="fab fa-instagram"></i>
+        </a>
+      
+    </div>
+</div>
+        <div class="footer-bottom">
+
+            <p>
+                &copy; 2026 SCORE.GE.
+                ყველა უფლება დაცულია.
+            </p>
+
+        </div>
+
+    </footer>
+    <script>
+     const urlParams = new URLSearchParams(window.location.search);
+const teamId = urlParams.get('id');
+
+async function loadFullDetails() {
+    // თუ ID არ არის, პირდაპირ პირველი გუნდი (ID: 1) გამოიტანოს ტესტისთვის
+    const idToFetch = (teamId && teamId !== "undefined") ? teamId : "1";
+
+    try {
+        // ვიყენებთ შენს მოწოდებულ ჰოსტინგის ლინკს
+        const response = await fetch(`http://score-geo.runasp.net/api/Teams/details/${idToFetch}`);
+        
+        if (!response.ok) throw new Error("მონაცემები ვერ მოიძებნა");
+        
+        const team = await response.json();
+        
+        // 1. ჰედერის შევსება
+        document.getElementById('team-title').innerText = team.name;
+        document.getElementById('team-logo').src = team.crest || team.logo || 'https://img.icons8.com/ios-filled/100/00e676/football2.png';
+        
+        document.getElementById('meta-venue').innerHTML = `🏟️ <strong>სტადიონი:</strong> ${team.venue || 'N/A'}`;
+        document.getElementById('meta-founded').innerHTML = `📅 <strong>დაარსდა:</strong> ${team.founded || 'N/A'}`;
+        document.getElementById('meta-colors').innerHTML = `🎨 <strong>ფერები:</strong> ${team.clubColors || 'N/A'}`;
+        
+        if(team.website) {
+            document.getElementById('meta-web').innerHTML = `🌐 <a href="${team.website}" target="_blank" style="color:#00ff85; text-decoration:none;">ოფიციალური საიტი</a>`;
+        }
+
+        document.getElementById('header-section').style.display = 'flex';
+
+        // 2. შემადგენლობის რენდერი
+        const squadList = document.getElementById('squad-list');
+        let html = '';
+
+        // მწვრთნელი
+        if (team.coach && team.coach.name) {
+            html += `
+                <div class="player-card coach-card" style="grid-column: 1/-1; border-left: 6px solid #fff;">
+                    <div class="player-main">
+                        <div>
+                            <h3 class="p-name">${team.coach.name}</h3>
+                            <p class="p-pos" style="color: #00ff85;">მთავარი მწვრთნელი / HEAD COACH</p>
+                            <p class="p-extra">🏳️ ${team.coach.nationality || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // ფეხბურთელები
+        if (team.squad && team.squad.length > 0) {
+            html += team.squad.map(player => {
+                let age = player.dateOfBirth ? (new Date().getFullYear() - new Date(player.dateOfBirth).getFullYear()) : "N/A";
+                
+                let color = "#555";
+                if (player.position?.includes('Goalkeeper')) color = "#ffcc00"; 
+                else if (player.position?.includes('Defence')) color = "#007bff";    
+                else if (player.position?.includes('Midfield')) color = "#00ff85";   
+                else if (player.position?.includes('Offence')) color = "#ff4d4d";    
+
+                return `
+                    <div class="player-card" style="border-left: 5px solid ${color};">
+                        <div class="shirt-number" style="color: ${color}; opacity: 0.2;">
+                            ${player.shirtNumber ? '#' + player.shirtNumber : ''}
+                        </div>
+                        <div class="player-main">
+                            <div>
+                                <h3 class="p-name">${player.name}</h3>
+                                <p class="p-pos" style="color: ${color};">${player.position?.toUpperCase() || 'PLAYER'}</p>
+                                <div class="p-extra">
+                                    <span>🎂 ${age} წ.</span> | <span>🏳️ ${player.nationality || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        } else {
+            html += "<p style='grid-column: 1/-1; text-align: center; color: #666;'>შემადგენლობა არ მოიძებნა.</p>";
+        }
+
+        squadList.innerHTML = html;
+
+    } catch (e) {
+        console.error("Fetch error:", e);
+        document.getElementById('team-title').innerText = "სერვერთან კავშირი ვერ დამყარდა";
+    }
+}
+
+loadFullDetails();
+    </script> 
+    <script src="app.js"></script>
+</body>
+</html>

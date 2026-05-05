@@ -1,0 +1,6 @@
+@SCORE_HostAddress = http://localhost:5227
+
+GET {{SCORE_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

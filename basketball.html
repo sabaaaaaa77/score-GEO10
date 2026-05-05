@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA მატჩები - SCORE</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .basketball-page-content { background-color: #0c0c0c; padding: 60px 20px; min-height: 80vh; color: white; font-family: sans-serif; }
+        .nba-container { max-width: 1200px; margin: 0 auto; }
+        .logo-text { text-align: center; font-size: 2.5rem; font-weight: 900; margin-bottom: 40px; }
+        .logo-text span { color: #00ff85; margin-left: 10px; }
+        
+        .status-filters { display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; }
+        .filter-btn { background: #1a1a1a; border: 1px solid #333; color: #aaa; padding: 12px 28px; border-radius: 50px; cursor: pointer; transition: 0.3s; font-weight: 600; }
+        .filter-btn.active { background: rgba(0, 255, 133, 0.1); color: #00ff85; border-color: #00ff85; }
+
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 25px; }
+        .game-card { background: #161616; border: 1px solid #222; border-radius: 20px; padding: 30px 20px; position: relative; transition: 0.3s; }
+        .game-card:hover { transform: translateY(-5px); border-color: #444; }
+
+        .match-box { display: flex; justify-content: space-between; align-items: center; }
+        .team { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .team img { width: 65px; height: 65px; object-fit: contain; }
+        .team-name { font-size: 0.85rem; font-weight: bold; text-align: center; }
+        
+        .score-box { flex: 0.7; text-align: center; }
+        .score { font-size: 2.2rem; font-weight: 900; color: #00ff85; letter-spacing: 2px; }
+        
+        .match-info { margin-top: 20px; padding-top: 15px; border-top: 1px solid #252525; text-align: center; font-size: 0.75rem; color: #666; }
+        
+        .live-indicator { position: absolute; top: 15px; right: 20px; background: #ff3e3e; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        
+        .loader { text-align: center; grid-column: 1/-1; padding: 50px; color: #00ff85; }
+    </style>
+</head>
+<body>
+   <header class="main-header">
+        <div class="container d-flex justify-content-between align-items-center" style="display: flex; justify-content: space-between; padding: 20px 0;">
+            <a href="index.html" class="logo-area">
+                <img src="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png" alt="Logo" style="height: 40px;">
+            </a>
+            <nav class="main-nav">
+                <ul class="nav-links" style="display: flex; list-style: none; gap: 20px;">
+                    <li><a href="index.html" style="text-decoration: none; color: white;">მთავარი</a></li>
+                    <li><a href="football.html" style="text-decoration: none; color: var(--main-green); font-weight: bold;">ფეხბურთი</a></li>
+                    <li><a href="basketball.html" style="text-decoration: none; color: white;">კალათბურთი</a></li>
+                   
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+<div class="basketball-page-content">
+    <div class="nba-container">
+        <h1 class="logo-text">SCORE<span>NBA</span></h1>
+        
+        <div class="status-filters">
+            <button onclick="filterGames('all')" class="filter-btn active" id="btn-all">ყველა</button>
+            <button onclick="filterGames('live')" class="filter-btn" id="btn-live">LIVE</button>
+            <button onclick="filterGames('final')" class="filter-btn" id="btn-final">დასრულებული</button>
+        </div>
+
+        <main id="gamesGrid" class="games-grid">
+            <div class="loader">მონაცემები იტვირთება...</div>
+        </main>
+    </div>
+</div>
+
+    <footer class="modern-footer">
+
+        <div class="footer-content">
+
+            <div class="footer-info">
+
+                <img src="Gemini_Generated_Image_lv2pcklv2pcklv2p-removebg-preview.png"
+                    class="footer-logo">
+
+                <p>
+                    საუკეთესო სპორტული პლატფორმა საქართველოში.
+                    თვალი ადევნე ყველა მატჩს რეალურ დროში.
+                </p>
+
+            </div>
+
+            <div class="footer-links">
+
+                <h4>ლიგები</h4>
+
+                <a href="#">Premier League</a>
+                <a href="#">La Liga</a>
+                <a href="#">Serie A</a>
+
+            </div>
+
+            <div class="footer-social">
+
+                <h4>მოგვყევით</h4>
+
+                <div class="social-icons">
+
+                    <a href="#">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+
+                    <a href="#">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+
+                    <a href="#">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+
+            <p>
+                &copy; 2026 SCORE.GE.
+                ყველა უფლება დაცულია.
+            </p>
+
+        </div>
+
+    </footer>
+<script>
+let allGames = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    // ყოველთვის რეალური დღევანდელი თარიღი
+    const today = new Date().toLocaleDateString('en-GB'); 
+    fetchBasketball(today);
+});
+
+async function fetchBasketball(date) {
+    const grid = document.getElementById('gamesGrid');
+    try {
+        // დავამატოთ cache-buster (t=...), რომ ბრაუზერმა ძველი პასუხი არ მოგვაწოდოს
+        const response = await fetch(`https://localhost:7053/api/Standings/basketball?date=${date}&t=${Date.now()}`);
+        const result = await response.json();
+        
+        allGames = result.data || [];
+        renderGames(allGames);
+    } catch (error) {
+        grid.innerHTML = `<p style="color:red; text-align:center;">შეცდომა: ${error.message}</p>`;
+    }
+}
+
+function renderGames(games) {
+    const grid = document.getElementById('gamesGrid');
+    if (!games || games.length === 0) {
+        grid.innerHTML = "<p style='text-align:center; grid-column:1/-1;'>დღეს მატჩები არ არის ჩანიშნული.</p>";
+        return;
+    }
+
+    grid.innerHTML = games.map(game => {
+        const homeLogo = `https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/${game.home_team.abbreviation.toLowerCase()}.png`;
+        const visitorLogo = `https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/${game.visitor_team.abbreviation.toLowerCase()}.png`;
+        
+        // ლოგიკა: არის თუ არა მატჩი რეალურად ლაივში
+        // თუ სტატუსში წერია დრო (მაგ: 12:30) და არ წერია "Final", მაშინ არის ლაივი
+        const statusLower = game.status.toLowerCase();
+        const isLive = !statusLower.includes('final') && !statusLower.includes('off') && game.status.includes(':');
+
+        return `
+            <div class="game-card">
+                ${isLive ? '<div class="live-indicator">LIVE</div>' : ''}
+                <div class="match-box">
+                    <div class="team">
+                        <img src="${homeLogo}" onerror="this.src='https://www.nba.com/assets/logos/teams/primary/full/NBA.svg'">
+                        <span class="team-name">${game.home_team.full_name}</span>
+                    </div>
+                    <div class="score-box">
+                        <div class="score">${game.home_team_score} - ${game.visitor_team_score}</div>
+                    </div>
+                    <div class="team">
+                        <img src="${visitorLogo}" onerror="this.src='https://www.nba.com/assets/logos/teams/primary/full/NBA.svg'">
+                        <span class="team-name">${game.visitor_team.full_name}</span>
+                    </div>
+                </div>
+                <div class="match-info">
+                    ${game.status} | NBA ${game.season}
+                </div>
+            </div>`;
+    }).join('');
+}
+
+function filterGames(type) {
+    // ღილაკების სტილის შეცვლა
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    let filtered = [];
+    if (type === 'all') {
+        filtered = allGames;
+    } else if (type === 'live') {
+        filtered = allGames.filter(g => !g.status.toLowerCase().includes('final') && g.status.includes(':'));
+    } else if (type === 'final') {
+        filtered = allGames.filter(g => g.status.toLowerCase().includes('final'));
+    }
+    renderGames(filtered);
+}
+</script>
+
+</body>
+</html>
