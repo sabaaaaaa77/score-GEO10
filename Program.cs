@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using SCORE.Data;
-using SCORE.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SCORE; // ყველა ფაილი ამ Namespace-ში უნდა იყოს (ფოლდერების გარეშე)
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,53 +8,52 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
 
-// --- 2. Controllers + JSON ---
+// --- 2. Controllers + JSON Handling ---
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
-        options.SerializerSettings.ReferenceLoopHandling =
-            Newtonsoft.Json.ReferenceLoopHandling.Ignore
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
     );
 
-// --- 3. Swagger ---
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// --- 4. Database ---
+// --- 3. Database ---
 var connectionString = "Server=db50800.databaseasp.net;Database=db50800;User Id=db50800;Password=7e+G#8ZocN?2;TrustServerCertificate=True;MultipleActiveResultSets=true";
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions =>
     {
-        sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(30),
-            errorNumbersToAdd: null);
+        sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);
     }));
 
-// --- 5. Services ---
+// --- 4. Services ---
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<SportsDataService>();
 builder.Services.AddScoped<IStandingsService, StandingsService>();
 builder.Services.AddHostedService<SportsUpdateWorker>();
 
 var app = builder.Build();
-// app.Run(); - ის ნაცვლად ჩაწერე ეს:
+
+// --- 🔥 5. ავტომატური ბაზის შექმნა (რომ ცარიელი არ იყოს) ---
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+        Console.WriteLine("Database Migrated Successfully!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Migration Error: {ex.Message}");
+    }
+}
 
 // --- 6. Middleware Pipeline ---
-
-// 🔥 1. HTTPS redirect (აუცილებელია ჰოსტინგზე)
-app.UseHttpsRedirection();
-
-// 🔥 2. CORS (ძალიან მნიშვნელოვანია)
-app.UseCors("AllowAll");
-
-// 🔥 3. Swagger (optional, მაგრამ კარგი)
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -63,12 +61,12 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
-// 🔥 4. Routing + Auth
+// მნიშვნელოვანია, რომ UseCors იყოს UseRouting-სა და UseEndpoints-ს შორის
+app.UseCors("AllowAll");
 app.UseRouting();
 app.UseAuthorization();
-
-// 🔥 5. Controllers
 app.MapControllers();
 
-// app.Run(); - ის ნაცვლად ჩაწერე ეს:
-app.Run();
+// --- 7. Port Configuration (Render-ისთვის) ---
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
