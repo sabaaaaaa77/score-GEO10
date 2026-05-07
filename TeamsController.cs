@@ -5,7 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace SCORE.Controllers
+namespace SCORE
 {
     [Route("api/[controller]")]
     [ApiController]
