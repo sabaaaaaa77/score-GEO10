@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SCORE.Models;
 
-namespace SCORE.Data
+namespace SCORE
 {
     public class AppDbContext : DbContext
     {
