@@ -1,38 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SCORE; 
+using SCORE;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CORS (აბსოლუტურად ყველაფრის უფლება) ---
+// --- 1. CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader());
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
-// --- 2. Controllers + JSON Handling ---
+// --- 2. Controllers ---
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
-        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-    );
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// --- 3. Database (დავამატე პორტი 1433 და კავშირის პარამეტრები) ---
-var connectionString = "Server=db50800.databaseasp.net,1433;Database=db50800;User Id=db50800;Password=7e+G#8ZocN?2;TrustServerCertificate=True;MultipleActiveResultSets=true;Connect Timeout=30;";
+// --- 3. Database (Neon PostgreSQL) ---
+var connectionString = "postgresql://neondb_owner:npg_G8gqCofWT3VR@ep-muddy-band-aq67cygr-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString, sqlOptions =>
-    {
-        sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(10),
-            errorNumbersToAdd: null);
-    }));
+    options.UseNpgsql(connectionString)); // შეცვლილია Npgsql-ზე
 
 // --- 4. Services ---
 builder.Services.AddHttpClient();
@@ -42,36 +33,29 @@ builder.Services.AddHostedService<SportsUpdateWorker>();
 
 var app = builder.Build();
 
-// --- 5. ავტომატური ბაზის შემოწმება/შექმნა ---
+// --- 5. ავტომატური ბაზის შექმნა ---
 using (var scope = app.Services.CreateScope())
 {
-    try
-    {
+    try {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        // EnsureCreated უფრო საიმედოა უფასო ჰოსტინგებზე, ვიდრე Migrate
+        // PostgreSQL-ისთვის ეს ყველაზე საიმედოა პირველ ჯერზე
         db.Database.EnsureCreated(); 
-        Console.WriteLine("Database Connection Check: OK");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Database Error: {ex.Message}");
+        Console.WriteLine("Neon Database Connected!");
+    } catch (Exception ex) {
+        Console.WriteLine($"DB Error: {ex.Message}");
     }
 }
 
-// --- 6. Middleware Pipeline ---
 app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
+app.UseSwaggerUI(c => {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "SCORE API V1");
     c.RoutePrefix = string.Empty;
 });
 
-// CORS უნდა იყოს Routing-მდე Render-ზე რომ არ აურიოს
 app.UseCors("AllowAll");
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 
-// --- 7. Port Configuration ---
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Run($"http://0.0.0.0:{port}");
