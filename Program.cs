@@ -1,66 +1,74 @@
 using Microsoft.EntityFrameworkCore;
 using SCORE.Data;
 using SCORE.Services;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. CORS-ის კონფიგურაცია (რომ ფრონტენდიდან პრობლემა არ გქონდეს)
+// --- 1. CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader());
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 });
 
-// 2. კონტროლერების და NewtonsoftJson-ის დამატება
+// --- 2. Controllers + JSON ---
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
-        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+        options.SerializerSettings.ReferenceLoopHandling =
+            Newtonsoft.Json.ReferenceLoopHandling.Ignore
     );
 
-// 3. Swagger/OpenAPI კონფიგურაცია
+// --- 3. Swagger ---
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 4. მონაცემთა ბაზის (SQL Server) კავშირი
+// --- 4. Database ---
+var connectionString = "Server=db50800.databaseasp.net;Database=db50800;User Id=db50800;Password=7e+G#8ZocN?2;TrustServerCertificate=True;MultipleActiveResultSets=true";
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null);
+    }));
 
-// 5. HttpClient-ის ზოგადი რეგისტრაცია
+// --- 5. Services ---
 builder.Services.AddHttpClient();
-
-// --- 6. სერვისების რეგისტრაცია (Dependency Injection) ---
-
-// სპორტის მონაცემების ზოგადი სერვისი
-builder.Services.AddHttpClient<SportsDataService>();
 builder.Services.AddScoped<SportsDataService>();
-
-// !!! აი აქ არის მთავარი გასწორება !!!
-// ვიყენებთ AddHttpClient-ს, რომელიც ავტომატურად არეგისტრირებს ინტერფეისსაც და კლასსაც.
-// დამატებითი AddScoped ამ სერვისისთვის აღარ გჭირდება.
-builder.Services.AddHttpClient<IStandingsService, StandingsService>();
-
-// Background ვორკერი მონაცემების ავტომატური განახლებისთვის
+builder.Services.AddScoped<IStandingsService, StandingsService>();
 builder.Services.AddHostedService<SportsUpdateWorker>();
 
 var app = builder.Build();
+// app.Run(); - ის ნაცვლად ჩაწერე ეს:
 
-// --- 7. HTTP Pipeline-ის კონფიგურაცია ---
+// --- 6. Middleware Pipeline ---
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+// 🔥 1. HTTPS redirect (აუცილებელია ჰოსტინგზე)
 app.UseHttpsRedirection();
 
-// CORS აუცილებლად Authorization-მდე უნდა იყოს
+// 🔥 2. CORS (ძალიან მნიშვნელოვანია)
 app.UseCors("AllowAll");
 
+// 🔥 3. Swagger (optional, მაგრამ კარგი)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "SCORE API V1");
+    c.RoutePrefix = string.Empty;
+});
+
+// 🔥 4. Routing + Auth
+app.UseRouting();
 app.UseAuthorization();
 
+// 🔥 5. Controllers
 app.MapControllers();
 
+// app.Run(); - ის ნაცვლად ჩაწერე ეს:
 app.Run();
