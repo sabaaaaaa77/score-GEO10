@@ -4,7 +4,7 @@ using SCORE.Data; // დარწმუნდი რომ ეს სახე�
 using SCORE.Services;
 using SCORE.Models;
 
-namespace SCORE.Controllers
+namespace SCORE
 {
     [ApiController]
     [Route("api/[controller]")]
